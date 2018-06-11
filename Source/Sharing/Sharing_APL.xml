@@ -10,15 +10,15 @@
 
   <androidManifestUpdates>
     <addElements tag="application">
-      <!--<provider 
+      <provider 
       android:name="android.support.v4.content.FileProvider"
-      android:authorities="com.MyCompany.MyGame.fileprovider"
+      android:authorities="${applicationId}.fileprovider"
       android:exported="false"
       android:grantUriPermissions="true">
        <meta-data
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_paths"/> 
-      </provider>-->
+      </provider>
     </addElements>   
   </androidManifestUpdates>
 
@@ -33,8 +33,8 @@
 
   <!-- optional files or directories to copy to Intermediate/Android/APK -->
   <resourceCopies>
-    <!-- Copy the generated resource file to be packaged 
-    <copyFile src="$S(PluginDir)/../../lib/Android/res/file_paths.xml" dst="$S(BuildDir)/res/xml/file_paths.xml" />-->
+    <!-- Copy the generated resource file to be packaged -->
+    <copyFile src="$S(PluginDir)/../../lib/Android/res/file_paths.xml" dst="$S(BuildDir)/res/xml/file_paths.xml" />
    
   </resourceCopies>
 
@@ -59,7 +59,7 @@
       //File picDir  = new File("../../../RisingBirds/Saved/Screenshots/Android" + "/myPic");
       //File picFile = new File(picDir + "/" + "Game" + ".png");
 
-      // Method to share either text or URL.
+      // Method to share either text or URL ******************************************************************
       //private void AndroidThunkJava_Sharing_ShareTextUrl(String Subject, String Message, String Url) {}
 
 
@@ -84,7 +84,7 @@
       }
 
 
-      //Method to share Text and image
+      //Method to share Text and image **********************************************************************************************
 
       private void AndroidThunkJava_Sharing_ShareScreenshotText(String Subject, String Message, String AppName, String Filename  ) {
 
@@ -93,7 +93,7 @@
       String MessageText = Message;
 
 
-      //Log.debug("Package Name is" + getPackageName());
+      Log.debug("Package Name is" + getPackageName());
 
 
       //Log.debug("Data Directory is" + getFilesDir().getAbsolutePath()); //getFilesDir().getAbsolutePath(),Environment.getDataDirectory()
@@ -117,11 +117,15 @@
       File picFile = new File(dirpath.getPath(), "UE4Game" +"/" + AppName + "/" + AppName + "/" + "Saved/Screenshots/Android" + "/" + Filename);
       //Log.debug("picFile is" + "/" + picFile.toString() + picFile.exists());
 
+	  String str = Environment.getExternalStorageDirectory().getAbsolutePath();
+	  //Log.debug("get enviroment path " + str.toString());
+      
+	  Log.debug("about to call uri");
+      //Uri uri = FileProvider.getUriForFile(this, "com.YourCompany.shareTest.fileprovider", picFile); //File provider
+  	  Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", picFile); //File provider
+	  Log.debug("UriName is" + "/" + uri.toString());
 
-      //Uri uri = FileProvider.getUriForFile(this, "com.PandoraEntertainmentLtd.RisingBirds.fileprovider", picFile); //File provider
-      //Log.debug("UriName is" + "/" + uri.toString());
-
-
+	  
       //Log.debug("Root Directory is" + Environment.getRootDirectory()); //getDataDirectory()
       //Log.debug("External Directory is" + Environment.getExternalStorageDirectory()); //picDir.getAbsolutePath()
 
@@ -133,19 +137,22 @@
       //intent.putExtra(Intent.EXTRA_SUBJECT, shareNote.getTitle());
       //intent.putExtra(Intent.EXTRA_TEXT, shareNote.getTitle());
       intent.setType("image/*");
-      intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(picFile));
+      //The two commented out under this one are the old intents for the image
+	  intent.putExtra(Intent.EXTRA_STREAM, uri);
+	  Log.debug("Intent Placed");
+      //intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(picFile));
       //intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(picFile.getAbsolutePath()));
       intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
       startActivity(Intent.createChooser(intent, "Share via"));
       //this.startActivity(intent);
-
+Log.debug("chooser shown");
       }
 
       /////////////////////////////////
 
       /*
 
-      // Method to share any image.
+      // Method to share any image. NOT USED???
       private void AndroidThunkJava_Sharing_shareImage() {
       Intent share = new Intent(Intent.ACTION_SEND);
 
@@ -155,12 +162,13 @@
 
       // Make sure you put example png image named myImage.png in your
       // directory
-      String imagePath = Environment.getExternalStorageDirectory()
-      + "/myImage.png";
+      //String imagePath = Environment.getExternalStorageDirectory() + "/myImage.png";
 
-      File imageFileToShare = new File(imagePath);
+      //File imageFileToShare = new File(imagePath);
 
-      Uri uri = Uri.fromFile(imageFileToShare);
+      //Uri uri = Uri.fromFile(imageFileToShare);
+	  Uri uri = FileProvider.getUriForFile(this, "${applicationId}.fileprovider", picFile); //File provider
+      Log.debug("We are here! UriName is" + "/" + uri.toString());
       share.putExtra(Intent.EXTRA_STREAM, uri);
 
       startActivity(Intent.createChooser(share, "Share Image!"));
@@ -187,6 +195,7 @@
       if (!picDir.exists())
       {
       picDir.mkdir();
+	  Log.debug("created mkdir: " + picDir.toString());
       }
       view.setDrawingCacheEnabled(true);
       view.buildDrawingCache(true);
@@ -227,7 +236,8 @@
       sharingIntent.putExtra(Intent.EXTRA_SUBJECT, Title);
       sharingIntent.putExtra(Intent.EXTRA_TEXT, Link);
       sharingIntent.setType("image/jpeg");
-      sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(picFile.getAbsolutePath()));
+      //sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(picFile.getAbsolutePath()));
+	  Log.debug("incorrect do not use");
       startActivity(Intent.createChooser(sharingIntent, "Share via"));
       }
 
